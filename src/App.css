@@ -1,16 +1,31 @@
 /* ─────────────────────────────────────────
    BASE
 ───────────────────────────────────────── */
+html, body {
+  overscroll-behavior-y: none; /* no elastic bounce past the page end */
+}
+
 .site {
+  position: relative;
+  min-height: 100%;
+  min-height: 100dvh;
+  /* background driven inline (color-mix cream → white with --page-mix) */
   background: #f5f4f1;
-  /* background lives here since model-fixed is transparent */
+  /* One treatment for every word on mist — nav, ARAV, name, scroll, phrases */
+  --word-stroke: clamp(0.5px, 0.12vw, 2.5px) rgba(245, 244, 241, 0.78);
+  --word-shadow:
+    -1px -1px 0 rgba(245, 244, 241, 0.98),
+    1px -1px 0 rgba(245, 244, 241, 0.98),
+    -1px 1px 0 rgba(245, 244, 241, 0.98),
+    1px 1px 0 rgba(245, 244, 241, 0.98),
+    0 0 3px rgba(245, 244, 241, 1),
+    0 0 22px rgba(245, 244, 241, 0.95),
+    0 0 44px rgba(245, 244, 241, 0.7);
+  --word-filter: drop-shadow(0 0 10px rgba(245, 244, 241, 0.55));
 }
 
 /* ─────────────────────────────────────────
-   FIXED MODEL
-   z-index: 5 — behind ARAV hero (z-index 10).
-   ARAV scrolls up and off naturally,
-   revealing the model sitting here.
+   FIXED MODEL — in front of hero (5); text shows through clear canvas pixels.
 ───────────────────────────────────────── */
 .model-fixed {
   position: fixed;
@@ -21,16 +36,13 @@
 }
 
 /* ─────────────────────────────────────────
-   ARAV HERO
-   Solid bg = covers model.
-   Normal scroll = slides up and off screen,
-   revealing the model underneath.
+   ARAV HERO — behind WebGL (15) so type sits “in the back” of the scene.
 ───────────────────────────────────────── */
 .arav-hero {
   position: relative;
   z-index: 5;
   height: 100vh;
-  background: transparent;   /* model visible through it from the start */
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,10 +64,14 @@ nav {
 
 .nav-logo {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #0c0c0c;
+  color: #000000;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
 }
 
 .nav-links {
@@ -66,36 +82,19 @@ nav {
 
 .nav-links a {
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  color: #0c0c0c;
-  opacity: 0.38;
+  color: #000000;
+  opacity: 0.85;
   transition: opacity 0.2s;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
 }
 .nav-links a:hover { opacity: 1; }
-
-.nav-sound {
-  font: inherit;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #0c0c0c;
-  opacity: 0.38;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.nav-sound:hover { opacity: 1; }
-
-/* Slightly louder visually when off — nudges a first click after autoplay is blocked */
-.nav-sound-idle {
-  opacity: 0.72;
-}
 
 /* ─────────────────────────────────────────
    BIG ARAV TEXT
@@ -111,9 +110,57 @@ nav {
   font-weight: 900;
   letter-spacing: -0.045em;
   line-height: 0.85;
-  color: #0c0c0c;
+  color: #000000;
   text-transform: uppercase;
   font-family: 'Inter', system-ui, sans-serif;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
+}
+
+/* ── Agnihotri — bottom-left ── */
+.arav-sub {
+  position: absolute;
+  bottom: 44px;
+  left: 48px;
+  font-size: clamp(18px, 2.8vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #000000;
+  font-family: 'Inter', system-ui, sans-serif;
+  pointer-events: none;
+  user-select: none;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
+}
+
+/* ── Social logos — bottom-right, mirrors Agnihotri ── */
+.arav-socials {
+  position: absolute;
+  bottom: 44px;
+  right: 48px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.arav-socials a {
+  color: #000000;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+  filter: var(--word-filter);
+}
+.arav-socials a:hover { opacity: 0.4; }
+
+.arav-socials svg {
+  width: clamp(20px, 2.4vw, 36px);
+  height: clamp(20px, 2.4vw, 36px);
 }
 
 /* ─────────────────────────────────────────
@@ -122,7 +169,8 @@ nav {
 .scroll-cue {
   position: absolute;
   bottom: 44px;
-  right: 48px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -132,11 +180,15 @@ nav {
 
 .scroll-cue span {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #0c0c0c;
-  opacity: 0.25;
+  color: #000000;
+  opacity: 0.85;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
 }
 
 .scroll-line {
@@ -156,10 +208,10 @@ nav {
 /* ─────────────────────────────────────────
    PHRASE TRACK
    Transparent — model shows through.
-   300vh gives 100vh per phrase.
+   PHRASE_STEPS_VH (3) + HANDOFF_VH (0.52) viewports — must match App.jsx constants.
 ───────────────────────────────────────── */
 .phrase-track {
-  height: 300vh;
+  height: 352vh;
   position: relative;
   z-index: 1;
 }
@@ -172,18 +224,25 @@ nav {
 .phrase {
   position: fixed;
   top: 50%;
-  z-index: 20;
+  z-index: 12;
   pointer-events: none;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(calc(-50% + 56px));
   transition:
-    opacity   0.6s ease,
+    opacity 0.55s ease,
+    visibility 0s 0.55s,
     transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .phrase-active {
-  opacity: 1;
+  visibility: visible;
+  opacity: var(--handoff-phrase, 1);
   transform: translateY(-50%);
+  transition:
+    opacity 0.55s ease,
+    visibility 0s 0s,
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Left phrase: occupies left ~42%, stays clear of center model */
@@ -204,5 +263,533 @@ nav {
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  color: #0c0c0c;
+  color: #000000;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--word-stroke);
+  text-shadow: var(--word-shadow);
+  filter: var(--word-filter);
+}
+
+/* ─────────────────────────────────────────
+   PROJECTS SECTION
+   Above .phrase (12), below WebGL canvas (15) — fixes phrase text painting over cards
+───────────────────────────────────────── */
+/* Sentinel: in-flow div that owns the scroll space for card reveals */
+.projects-sentinel {
+  height: 220vh; /* 120vh card reveal window + 100vh buffer so page ends cleanly */
+  position: relative;
+  z-index: 1;
+}
+
+/* Fixed like the model canvas — physically impossible to scroll past */
+.projects-section {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+}
+
+.projects-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: #ffffff;
+  opacity: var(--handoff-projects, 0);
+  transform: translateY(calc((1 - var(--handoff-projects, 0)) * 20px));
+  transition: none;
+  /* Full-screen fixed layer must not steal clicks while invisible (hero nav/socials sit below). */
+  pointer-events: none;
+}
+
+.projects-inner--interactive {
+  pointer-events: auto;
+}
+
+.projects-cards-container {
+  position: absolute;
+  inset: 0;
+  bottom: 38%; /* keep cards above the heading */
+}
+
+/* ── Bounce-in keyframe — flies in from the right ── */
+@keyframes cardBounceIn {
+  0%   { opacity: 0; transform: rotate(var(--rot)) translateX(110vw) scale(0.9); }
+  55%  { opacity: 1; transform: rotate(var(--rot)) translateX(-18px)  scale(1.04); }
+  75%  { transform: rotate(var(--rot)) translateX(7px)  scale(0.98); }
+  90%  { transform: rotate(var(--rot)) translateX(-3px) scale(1.01); }
+  100% { opacity: 1; transform: rotate(var(--rot)) translateX(0)     scale(1);    }
+}
+
+/* ── Individual cards — hidden until .card-revealed ── */
+.project-card {
+  position: absolute;
+  width: clamp(100px, 10.5vw, 172px);
+  aspect-ratio: 0.62;
+  border-radius: 3px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  opacity: 0;
+  text-decoration: none;
+  display: block;
+}
+
+.project-card--has-cover {
+  overflow: hidden;
+}
+
+.project-card-cover-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 18%;
+  background-repeat: no-repeat;
+}
+
+.project-card-cover-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.4) 48%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  pointer-events: none;
+}
+
+/* Row 1 — top */
+.project-card-1 { --rot: -12deg; left: 1%;  top: 6%;  }
+.project-card-2 { --rot: -8deg;  left: 10%; top: 34%; }
+.project-card-3 { --rot:  9deg;  left: 25%; top: 5%;  }
+.project-card-4 { --rot:  6deg;  left: 35%; top: 32%; }
+.project-card-5 { --rot: -5deg;  left: 50%; top: 7%;  }
+.project-card-6 { --rot: -9deg;  left: 60%; top: 33%; }
+.project-card-7 {
+  --rot: 10deg; left: 74%; top: 4%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(0,0,0,0.1);
+}
+.project-card-8 { --rot:  8deg;  left: 83%; top: 30%; }
+
+/* Each card bounces in when JS adds .card-revealed */
+.project-card.card-revealed { animation: cardBounceIn 0.68s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Hover */
+.project-card-1:hover { transform: rotate(-12deg) translateY(-10px) scale(1.04); }
+.project-card-2:hover { transform: rotate(-8deg)  translateY(-10px) scale(1.04); }
+.project-card-3:hover { transform: rotate(9deg)   translateY(-10px) scale(1.04); }
+.project-card-4:hover { transform: rotate(6deg)   translateY(-10px) scale(1.04); }
+.project-card-5:hover { transform: rotate(-5deg)  translateY(-10px) scale(1.04); }
+.project-card-6:hover { transform: rotate(-9deg)  translateY(-10px) scale(1.04); }
+.project-card-7:hover { transform: rotate(10deg)  translateY(-10px) scale(1.04); }
+.project-card-8:hover { transform: rotate(8deg)   translateY(-10px) scale(1.04); }
+
+.project-card-inner {
+  position: relative;
+  z-index: 1;
+  padding: clamp(10px, 1vw, 16px);
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.project-card-status {
+  font-size: clamp(7px, 0.65vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 6px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.project-card-title {
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(15px, 1.6vw, 24px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  font-family: 'Inter', system-ui, sans-serif;
+  margin-bottom: 6px;
+}
+
+.project-card-sub {
+  font-size: clamp(8px, 0.75vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+/* ── PROJECTS heading ── */
+.projects-tagline {
+  font-size: clamp(9px, 0.85vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.35);
+  margin: 0 0 10px clamp(28px, 3vw, 52px);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.projects-heading {
+  font-size: clamp(100px, 17.5vw, 280px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.82;
+  color: #000;
+  text-transform: uppercase;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 0 clamp(24px, 2.5vw, 44px);
+  padding-bottom: clamp(12px, 1.5vw, 28px);
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────
+   SPLASH — black screen + title + Start before main site
+───────────────────────────────────────── */
+@keyframes siteSplashOut {
+  0% {
+    opacity: 1;
+    clip-path: circle(145% at 50% 45%);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    clip-path: circle(0% at 50% 45%);
+  }
+}
+
+@keyframes siteSplashContentOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.97);
+  }
+}
+
+@keyframes siteSplashOutReduced {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes splashEnterBrand {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashEnterBtn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashGlowPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.site-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 5vw, 48px);
+  background:
+    radial-gradient(ellipse 90% 65% at 50% 32%, rgba(255, 248, 237, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 88%, rgba(130, 150, 220, 0.07) 0%, transparent 45%),
+    linear-gradient(165deg, #050508 0%, #0a0a0f 45%, #060608 100%);
+  isolation: isolate;
+}
+
+.site-splash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.2;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.11) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.site-splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.65) 100%);
+  pointer-events: none;
+}
+
+.site-splash-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(44px, 7vh, 72px);
+  max-width: min(44rem, 100%);
+  text-align: center;
+}
+
+.site-splash:not(.site-splash--exit) .site-splash-brand {
+  animation: splashEnterBrand 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.site-splash:not(.site-splash--exit) .site-splash-start {
+  animation: splashEnterBtn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+.site-splash-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(26px, 4.2vh, 42px);
+}
+
+.site-splash-flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.site-splash-flourish-line {
+  width: min(92px, 24vw);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(245, 244, 241, 0.45) 40%,
+    rgba(245, 244, 241, 0.65) 100%
+  );
+}
+
+.site-splash-flourish-line:last-of-type {
+  background: linear-gradient(
+    270deg,
+    transparent,
+    rgba(245, 244, 241, 0.45) 40%,
+    rgba(245, 244, 241, 0.65) 100%
+  );
+}
+
+.site-splash-flourish-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, rgba(200, 195, 185, 0.9) 100%);
+  box-shadow:
+    0 0 20px rgba(255, 250, 245, 0.35),
+    0 0 48px rgba(255, 245, 230, 0.12);
+  animation: splashGlowPulse 4s ease-in-out infinite;
+}
+
+.site-splash-title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12em;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 300;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.site-splash-title-line {
+  display: block;
+}
+
+.site-splash-title-line--name {
+  font-size: clamp(2rem, 6.4vw, 3.5rem);
+  background: linear-gradient(
+    180deg,
+    #fffffd 0%,
+    #e8e4dc 42%,
+    #b8b3a8 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 24px rgba(0, 0, 0, 0.45));
+}
+
+.site-splash-title-line--word {
+  font-size: clamp(3rem, 10vw, 5.35rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 252, 248, 1) 0%,
+    rgba(230, 225, 215, 0.95) 50%,
+    rgba(180, 175, 165, 0.88) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 32px rgba(0, 0, 0, 0.35));
+}
+
+.site-splash--exit {
+  pointer-events: none;
+  animation: siteSplashOut 1.05s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.site-splash--exit .site-splash-inner {
+  animation: siteSplashContentOut 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-splash:not(.site-splash--exit) .site-splash-brand,
+  .site-splash:not(.site-splash--exit) .site-splash-start {
+    animation: none;
+  }
+
+  .site-splash-flourish-dot {
+    animation: none;
+  }
+
+  .site-splash--exit {
+    animation: siteSplashOutReduced 0.35s ease forwards;
+  }
+
+  .site-splash--exit .site-splash-inner {
+    animation: none;
+  }
+}
+
+.site-splash-start {
+  position: relative;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(11px, 1.45vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  text-indent: 0.38em;
+  text-transform: uppercase;
+  color: #f8f6f2;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 252, 248, 0.28);
+  border-radius: 999px;
+  padding: 1.25em 2.85em 1.25em 3.2em;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 18px 42px -16px rgba(0, 0, 0, 0.65),
+    0 0 40px -12px rgba(255, 250, 245, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    box-shadow 0.35s ease,
+    background 0.25s ease,
+    opacity 0.2s;
+}
+
+.site-splash-start:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(255, 252, 248, 0.55);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 22px 48px -14px rgba(0, 0, 0, 0.55),
+    0 0 56px -8px rgba(255, 250, 245, 0.18);
+}
+
+.site-splash-start:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.site-splash-start:focus-visible {
+  outline: 2px solid rgba(255, 250, 245, 0.85);
+  outline-offset: 8px;
+}
+
+.site-splash-start:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ─────────────────────────────────────────
+   BACKGROUND MUSIC — fixed control (autoplay blocked; user starts playback)
+───────────────────────────────────────── */
+.music-dock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 60;
+  pointer-events: auto;
+}
+
+.music-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: color-mix(in srgb, #f5f4f1 88%, #ffffff);
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.06);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #000;
+  cursor: pointer;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.music-toggle:hover {
+  opacity: 0.85;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.music-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.music-toggle-label {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
