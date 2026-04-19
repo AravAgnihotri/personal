@@ -228,10 +228,11 @@ function PortfolioHome() {
   const wheelFlushRafRef = useRef(null)
   const musicRef = useRef(null)
   const [musicPlaying, setMusicPlaying] = useState(false)
-  const [siteEntered, setSiteEntered] = useState(true)
-  const [splashMounted, setSplashMounted] = useState(false)
+  /** Cold load: show splash first. Skip when landing on #work / return-from-project flows (see readReturnToProjectsIntent). */
+  const [siteEntered, setSiteEntered] = useState(() => readReturnToProjectsIntent())
+  const [splashMounted, setSplashMounted] = useState(() => !readReturnToProjectsIntent())
   const [splashExiting, setSplashExiting] = useState(false)
-  const splashExitDoneRef = useRef(true)
+  const splashExitDoneRef = useRef(readReturnToProjectsIntent())
   const projectsStripViewportRef = useRef(null)
   const projectsStripTrackRef = useRef(null)
   const maxStripShiftRef = useRef(0)
@@ -270,24 +271,6 @@ function PortfolioHome() {
       document.body.style.overflow = ''
     }
   }, [siteEntered])
-
-  useEffect(() => {
-    if (!siteEntered) return
-    const tr = projectsStripTrackRef.current
-    const vp = projectsStripViewportRef.current
-    if (!tr || !vp) return
-
-    const ro = new ResizeObserver(() => {
-      measureProjectsStrip()
-    })
-    ro.observe(tr)
-    ro.observe(vp)
-    measureProjectsStrip()
-
-    return () => {
-      ro.disconnect()
-    }
-  }, [siteEntered, measureProjectsStrip])
 
   const runScrollFrame = useCallback(() => {
     syncFadeEnd()
@@ -368,8 +351,22 @@ function PortfolioHome() {
       const sh = sentinelEl.offsetHeight
       // Align with max scroll through sentinel (sh − viewport); smaller denominators never reach stripT = 1.
       const range = Math.max(1, sh - vhUnit)
-      const stripT =
+      let stripT =
         y < projectsTop ? 0 : Math.min(1, Math.max(0, (y - projectsTop) / range))
+      const scrollMax = Math.max(
+        0,
+        (typeof document !== 'undefined'
+          ? document.documentElement.scrollHeight
+          : 0) - vhUnit
+      )
+      if (
+        scrollMax > 0 &&
+        y >= scrollMax - 2 &&
+        y >= projectsTop &&
+        projectsTop > 0
+      ) {
+        stripT = 1
+      }
       const mx = maxStripShiftRef.current
       const x = -(mx * stripT)
       stripEl.style.transform =
@@ -409,6 +406,26 @@ function PortfolioHome() {
       runScrollFrame()
     })
   }, [runScrollFrame])
+
+  useEffect(() => {
+    if (!siteEntered) return
+    const tr = projectsStripTrackRef.current
+    const vp = projectsStripViewportRef.current
+    if (!tr || !vp) return
+
+    const ro = new ResizeObserver(() => {
+      measureProjectsStrip()
+      runScrollFrame()
+    })
+    ro.observe(tr)
+    ro.observe(vp)
+    measureProjectsStrip()
+    runScrollFrame()
+
+    return () => {
+      ro.disconnect()
+    }
+  }, [siteEntered, measureProjectsStrip, runScrollFrame])
 
   useEffect(() => {
     const onScroll = () => scheduleScroll()
@@ -469,13 +486,51 @@ function PortfolioHome() {
 
     const onWheel = (e) => {
       if (e.ctrlKey) return
-      if (e.shiftKey) return
+
+      const vh = window.innerHeight
+      const sen = projectsSentinelRef.current
+      const mx = maxStripShiftRef.current
+      const y = window.scrollY
+
+      let inStripZone = false
+      let range = 1
+      let projectsTop = 0
+      if (sen && mx > 0) {
+        projectsTop = elementDocumentTop(sen)
+        const sh = sen.offsetHeight
+        range = Math.max(1, sh - vh)
+        inStripZone = y >= projectsTop && y <= projectsTop + range
+      }
+
+      if (e.shiftKey && !inStripZone) return
+
+      let dx = e.deltaX
       let dy = e.deltaY
-      if (e.deltaMode === 1) dy *= 16
-      else if (e.deltaMode === 2) dy *= window.innerHeight
-      const capped = Math.sign(dy) * Math.min(Math.abs(dy), MAX_WHEEL_DELTA_PX)
+      if (inStripZone && e.shiftKey) {
+        dx += dy
+        dy = 0
+      }
+
+      if (e.deltaMode === 1) {
+        dx *= 16
+        dy *= 16
+      } else if (e.deltaMode === 2) {
+        dx *= vh
+        dy *= vh
+      }
+
+      const cappedY = Math.sign(dy) * Math.min(Math.abs(dy), MAX_WHEEL_DELTA_PX)
+      const cappedX = Math.sign(dx) * Math.min(Math.abs(dx), MAX_WHEEL_DELTA_PX)
+
+      let horizontalDy = 0
+      if (inStripZone && mx > 0) {
+        horizontalDy = (range / mx) * cappedX * multiplier
+      }
+
+      const totalDy = cappedY * multiplier + horizontalDy
+
       e.preventDefault()
-      wheelAccRef.current += capped * multiplier
+      wheelAccRef.current += totalDy
       if (wheelFlushRafRef.current == null) {
         wheelFlushRafRef.current = requestAnimationFrame(flushWheel)
       }
