@@ -1081,55 +1081,6 @@ nav {
 }
 
 /* ─────────────────────────────────────────
-   BACKGROUND MUSIC — fixed control (autoplay blocked; user starts playback)
-───────────────────────────────────────── */
-.music-dock {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 60;
-  pointer-events: auto;
-}
-
-.music-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
-  background: color-mix(in srgb, #f5f4f1 88%, #ffffff);
-  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.06);
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #000;
-  cursor: pointer;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-
-.music-toggle:hover {
-  opacity: 0.85;
-  border-color: rgba(0, 0, 0, 0.2);
-}
-
-.music-toggle-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.9;
-}
-
-.music-toggle-label {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ─────────────────────────────────────────
    PORTFOLIO — phones & small viewports
    Hero chrome was overlapping; projects strip felt oversized.
 ───────────────────────────────────────── */
@@ -1227,16 +1178,6 @@ nav {
     padding-right: 16px;
     padding-bottom: max(12px, env(safe-area-inset-bottom, 0));
   }
-
-  .music-dock {
-    bottom: max(12px, env(safe-area-inset-bottom, 0));
-    right: max(12px, env(safe-area-inset-right, 0));
-  }
-
-  .music-toggle {
-    padding: 7px 10px;
-    font-size: 9px;
-  }
 }
 
 @media (max-width: 520px) {
@@ -1313,16 +1254,6 @@ nav {
   .projects-heading {
     font-size: clamp(40px, 11vw, 72px);
     line-height: 0.88;
-  }
-
-  .music-toggle-label {
-    display: none;
-  }
-
-  .music-toggle {
-    padding: 10px;
-    border-radius: 50%;
-    gap: 0;
   }
 }
 

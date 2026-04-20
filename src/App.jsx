@@ -226,8 +226,6 @@ function PortfolioHome() {
   const scrollRafRef = useRef(null)
   const wheelAccRef = useRef(0)
   const wheelFlushRafRef = useRef(null)
-  const musicRef = useRef(null)
-  const [musicPlaying, setMusicPlaying] = useState(false)
   /** Cold load: show splash first. Skip when landing on #work / return-from-project flows (see readReturnToProjectsIntent). */
   const [siteEntered, setSiteEntered] = useState(() => readReturnToProjectsIntent())
   const [splashMounted, setSplashMounted] = useState(() => !readReturnToProjectsIntent())
@@ -444,19 +442,6 @@ function PortfolioHome() {
   }, [scheduleScroll, runScrollFrame, measureProjectsStrip])
 
   useEffect(() => {
-    const el = musicRef.current
-    if (!el) return
-    const onPlay = () => setMusicPlaying(true)
-    const onPause = () => setMusicPlaying(false)
-    el.addEventListener('play', onPlay)
-    el.addEventListener('pause', onPause)
-    return () => {
-      el.removeEventListener('play', onPlay)
-      el.removeEventListener('pause', onPause)
-    }
-  }, [])
-
-  useEffect(() => {
     if (!siteEntered) return
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     if (mq.matches) return
@@ -555,7 +540,6 @@ function PortfolioHome() {
 
   const enterSite = useCallback(() => {
     if (splashExiting) return
-    void musicRef.current?.play()
     setSplashExiting(true)
   }, [splashExiting])
 
@@ -574,17 +558,6 @@ function PortfolioHome() {
     return () => window.clearTimeout(t)
   }, [splashExiting, finishSplashExit])
 
-
-  const toggleMusic = useCallback(() => {
-    const el = musicRef.current
-    if (!el) return
-    if (el.paused) {
-      void el.play()
-    } else {
-      el.pause()
-    }
-  }, [])
-
   return (
     <div
       className="site"
@@ -595,13 +568,6 @@ function PortfolioHome() {
         background: `color-mix(in srgb, #f5f4f1 ${(1 - handoff.pageMix) * 100}%, #ffffff ${handoff.pageMix * 100}%)`,
       }}
     >
-      <audio
-        ref={musicRef}
-        src="/14-days.mp3"
-        loop
-        preload="auto"
-      />
-
       {splashMounted && (
         <div
           className={`site-splash${splashExiting ? ' site-splash--exit' : ''}`}
@@ -633,31 +599,6 @@ function PortfolioHome() {
               Start
             </button>
           </div>
-        </div>
-      )}
-
-      {siteEntered && (
-        <div className="music-dock">
-          <button
-            type="button"
-            className="music-toggle"
-            onClick={toggleMusic}
-            aria-pressed={musicPlaying}
-            aria-label={musicPlaying ? 'Pause music' : 'Play music'}
-          >
-            <span className="music-toggle-icon" aria-hidden>
-              {musicPlaying ? (
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              )}
-            </span>
-            <span className="music-toggle-label">14 Days</span>
-          </button>
         </div>
       )}
 
