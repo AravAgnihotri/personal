@@ -7,9 +7,9 @@ import { publicUrl } from './publicUrl'
 import './App.css'
 
 const PHRASES = [
-  { text: 'Innovator at The Knowledge Society.', side: 'left'  },
-  { text: "Building what doesn't exist yet.",    side: 'right' },
-  { text: 'Exploring Agentic AI.',               side: 'left'  },
+  { text: 'Innovator\nat\nThe\nKnowledge\nSociety.', side: 'left'  },
+  { text: "Building\nwhat\ndoesn't\nexist\nyet.",    side: 'right' },
+  { text: 'Exploring\nAgentic\nAI.',                 side: 'left'  },
 ]
 
 const PROJECTS = [
